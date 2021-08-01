@@ -111,6 +111,9 @@
   </Layout>
   <SubComponents>
     <Component class="javax.swing.JDesktopPane" name="ventanaPrincipal">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

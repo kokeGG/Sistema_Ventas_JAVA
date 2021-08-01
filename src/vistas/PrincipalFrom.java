@@ -207,6 +207,6 @@ public class PrincipalFrom extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem miGenerarVenta;
     private javax.swing.JMenuItem miSalir;
-    private javax.swing.JDesktopPane ventanaPrincipal;
+    public static javax.swing.JDesktopPane ventanaPrincipal;
     // End of variables declaration//GEN-END:variables
 }

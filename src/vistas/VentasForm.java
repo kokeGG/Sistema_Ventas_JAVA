@@ -5,6 +5,18 @@
  */
 package vistas;
 
+import DAO.ClienteDAO;
+import DAO.ProductoDAO;
+import DAO.VentasDAO;
+import clases.Cliente;
+import clases.DetalleVentas;
+import clases.Producto;
+import clases.Ventas;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author koke
@@ -14,8 +26,44 @@ public class VentasForm extends javax.swing.JInternalFrame {
     /**
      * Creates new form VentasForm
      */
+    VentasDAO vdao = new VentasDAO();
+    ClienteDAO cdao = new ClienteDAO();
+    ProductoDAO pdao = new ProductoDAO();
+    
+    Producto p = new Producto();
+    Ventas v = new Ventas();
+    DetalleVentas dv = new DetalleVentas();
+    Cliente c = new Cliente();
+    
+    int item, idp, cant;
+    double pre, tpagr;
+    
+    DefaultTableModel modelo = new DefaultTableModel();
+    
     public VentasForm() {
         initComponents();
+        generarSerie();
+        fecha();
+        
+    }
+    
+    void fecha(){
+        Calendar calendar = new GregorianCalendar();
+        txtFecha.setText("" + calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + "-" + calendar.get(Calendar.DAY_OF_MONTH));
+        
+    }
+    
+    void generarSerie(){
+        String serie = vdao.noSerieVentas();
+        if (serie == null) {
+            txtNoSerie.setText("0000001");
+        }
+        else
+        {
+            int increment = Integer.parseInt(serie);
+            increment = increment + 1;
+            txtNoSerie.setText("00000" + increment);
+        }
     }
 
     /**
@@ -94,14 +142,12 @@ public class VentasForm extends javax.swing.JInternalFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(47, 47, 47)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jLabel3)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel5)
                                 .addGap(30, 30, 30)
-                                .addComponent(txtNoSerie, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addComponent(txtNoSerie, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(94, 94, 94)
                         .addComponent(jLabel4)
@@ -153,12 +199,27 @@ public class VentasForm extends javax.swing.JInternalFrame {
 
         btnBuscarCli.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/buscar.png"))); // NOI18N
         btnBuscarCli.setText("Buscar");
+        btnBuscarCli.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarCliActionPerformed(evt);
+            }
+        });
 
         btnBuscarProd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/buscar.png"))); // NOI18N
         btnBuscarProd.setText("Buscar");
+        btnBuscarProd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarProdActionPerformed(evt);
+            }
+        });
 
         btnAgregar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add.png"))); // NOI18N
         btnAgregar.setText("Agregar");
+        btnAgregar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarActionPerformed(evt);
+            }
+        });
 
         jLabel10.setFont(new java.awt.Font("TlwgTypewriter", 1, 15)); // NOI18N
         jLabel10.setText("Cliente:");
@@ -232,10 +293,11 @@ public class VentasForm extends javax.swing.JInternalFrame {
                         .addComponent(txtCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel7)
-                        .addComponent(btnBuscarProd)
-                        .addComponent(txtCodProd))
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(txtCodProd)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(btnBuscarProd)))
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel11)
                         .addComponent(txtProducto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -295,9 +357,19 @@ public class VentasForm extends javax.swing.JInternalFrame {
 
         btnGenerar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/money.png"))); // NOI18N
         btnGenerar.setText("Generar venta");
+        btnGenerar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGenerarActionPerformed(evt);
+            }
+        });
 
         btnCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/salir.png"))); // NOI18N
         btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -353,6 +425,55 @@ public class VentasForm extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnBuscarCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarCliActionPerformed
+        // TODO add your handling code here:
+        buscarCliente();
+    }//GEN-LAST:event_btnBuscarCliActionPerformed
+
+    private void btnBuscarProdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarProdActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnBuscarProdActionPerformed
+
+    private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAgregarActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void btnGenerarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnGenerarActionPerformed
+
+    void buscarCliente(){
+        int r;
+        String cod = txtCodClie.getText();
+        if (txtCodClie.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Debe de ingresar el código del cliente");
+            txtCodClie.requestFocus();
+            
+        }
+        else
+        {
+            c = cdao.listarClienteID(cod);
+            if (c.getDni() != null) {
+                txtCliente.setText(c.getNom());
+                txtCodProd.requestFocus();
+            }
+            else
+            {
+                r = JOptionPane.showConfirmDialog(this, "Cliente no registrado, ¿Desea registrar?");
+                
+                if (r == 0) {
+                    ClienteForm cf = new ClienteForm();
+                    PrincipalFrom.ventanaPrincipal.add(cf);
+                    cf.setVisible(true);
+                    
+                }
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregar;
