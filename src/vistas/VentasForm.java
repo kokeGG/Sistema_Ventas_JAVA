@@ -512,7 +512,7 @@ public class VentasForm extends javax.swing.JInternalFrame {
             }
         }
     }
-    
+    //agregar producto.
     void agregarProducto(){
         double total;
         modelo = (DefaultTableModel) tableVenta.getModel();
