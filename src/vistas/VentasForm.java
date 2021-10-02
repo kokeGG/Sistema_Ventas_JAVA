@@ -12,6 +12,7 @@ import clases.Cliente;
 import clases.DetalleVentas;
 import clases.Producto;
 import clases.Ventas;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import javax.swing.JOptionPane;
@@ -36,7 +37,7 @@ public class VentasForm extends javax.swing.JInternalFrame {
     Cliente c = new Cliente();
     
     int item, idp, cant;
-    double pre, tpagr;
+    double pre, tpagar;
     
     DefaultTableModel modelo = new DefaultTableModel();
     
@@ -432,10 +433,12 @@ public class VentasForm extends javax.swing.JInternalFrame {
 
     private void btnBuscarProdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarProdActionPerformed
         // TODO add your handling code here:
+        buscarProducto();
     }//GEN-LAST:event_btnBuscarProdActionPerformed
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
         // TODO add your handling code here:
+        agregarProducto();
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
@@ -444,6 +447,19 @@ public class VentasForm extends javax.swing.JInternalFrame {
 
     private void btnGenerarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarActionPerformed
         // TODO add your handling code here:
+        if (txtTotal.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Debe de ingresar datos");
+            
+        }
+        else
+        {
+            guardarVenta();
+            guardarDetalle();
+            actualizarStock();
+            JOptionPane.showMessageDialog(this, "Se realizó con éxito la venta");
+            nuevo();
+            generarSerie();
+        }
     }//GEN-LAST:event_btnGenerarActionPerformed
 
     void buscarCliente(){
@@ -474,7 +490,137 @@ public class VentasForm extends javax.swing.JInternalFrame {
             }
         }
     }
+    
+    void buscarProducto(){
+        int id = Integer.parseInt(txtCodProd.getText());
+        if (txtCodProd.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Debe de ingresar el codigo del cliente");
+            txtCodProd.requestFocus();
+        }
+        else
+        {
+            p = pdao.listarProductoID(id);
+            if (p.getId() !=0) {
+                txtProducto.setText(p.getNombre());
+                txtPrec.setText(""+p.getPrecio());
+                txtStock.setText(""+p.getStock());
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(this, "producto no registrado");
+                txtCodProd.requestFocus();
+            }
+        }
+    }
+    
+    void agregarProducto(){
+        double total;
+        modelo = (DefaultTableModel) tableVenta.getModel();
+        item = item + 1;
+        idp = p.getId();
+        String nomP = txtProducto.getText();
+        pre = Double.parseDouble(txtPrec.getText());
+        cant = Integer.parseInt(txtCantidad.getValue().toString());
+        int stock = Integer.parseInt(txtStock.getText());
+        total = cant * pre;
+        ArrayList lista = new ArrayList();
+        if (stock > 0) {
+            lista.add(item);
+            lista.add(idp);
+            lista.add(nomP);
+            lista.add(cant);
+            lista.add(pre);
+            lista.add(total);
+            Object[] ob = new Object[6];
+            for (int i = 0; i < 6; i++) {
+                ob[i] = lista.get(i);
+            }
+            modelo.addRow(ob);
+            tableVenta.setModel(modelo);
+            calcularTotal();
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(this, "Stock de producto no disponible");
+        }
+    }
 
+    void calcularTotal(){
+        tpagar = 0;
+        for (int i = 0; i < tableVenta.getRowCount(); i++) {
+            cant = Integer.parseInt(tableVenta.getValueAt(i, 3).toString());
+            pre = Double.parseDouble(tableVenta.getValueAt(i, 4).toString());
+            tpagar = tpagar + (cant * pre);
+            
+        }
+        txtTotal.setText(" "+tpagar+" 0");
+    }
+    
+    void guardarDetalle(){
+        String idv = vdao.idVentas();
+        int idve = Integer.parseInt(idv);
+        for (int i = 0; i < tableVenta.getRowCount(); i++) {
+            int idp = Integer.parseInt(tableVenta.getValueAt(i, 1).toString());
+            int cant = Integer.parseInt(tableVenta.getValueAt(i, 3).toString());
+            double pre = Double.parseDouble(tableVenta.getValueAt(i, 4).toString());
+            
+            dv.setIdVentas(idve);
+            dv.setIdProducto(idp);
+            dv.setCantidad(cant);
+            dv.setPreVenta(pre);
+            vdao.guardarDetalleVenta(dv);
+        }
+    }
+    
+    void guardarVenta(){
+        int idv = 1;
+        int idC = c.getId();
+        String serie = txtNoSerie.getText();
+        String fecha = txtFecha.getText();
+        double monto = tpagar;
+        String estado = "1";
+        v.setIdCliente(idC);
+        v.setIdVendedor(idv);
+        v.setSerie(serie);
+        v.setFecha(fecha);
+        v.setMonto(monto);
+        v.setEstado(estado);
+        vdao.guardarVentas(v);
+    }
+    
+    void actualizarStock(){
+        for (int i = 0; i < modelo.getRowCount(); i++) {
+            Producto pr = new Producto();
+            idp = Integer.parseInt(tableVenta.getValueAt(i, 1).toString());
+            cant = Integer.parseInt(tableVenta.getValueAt(i, 3).toString());
+            pr = pdao.listarProductoID(idp);
+            int sa = pr.getStock() - cant;
+            pdao.actualizarStock(sa, idp);
+        }
+    }
+    
+    void limpiarTabla(){
+        for (int i = 0; i < modelo.getRowCount(); i++) {
+            modelo.removeRow(i);
+            i = i-1;
+            
+        }
+    }
+    
+    void nuevo(){
+        limpiarTabla();
+        txtCodClie.setText("");
+        txtCliente.setText("");
+        txtCantidad.setValue(1);
+        txtCodProd.setText("");
+        txtPrec.setText("");
+        txtProducto.setText("");
+        txtTotal.setText("");
+        txtStock.setText("");
+        txtCodClie.setText("");
+        txtCodClie.requestFocus();
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregar;
     private javax.swing.JButton btnBuscarCli;

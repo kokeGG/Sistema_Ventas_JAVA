@@ -17,7 +17,7 @@ import java.util.List;
  * @author koke
  */
 public class ProductoDAO implements CRUD{
-    
+    int r;
     Conexion cn = new Conexion();
     Producto pr = new Producto();
     
@@ -25,6 +25,21 @@ public class ProductoDAO implements CRUD{
     PreparedStatement ps;
     ResultSet rs;
 
+    
+    public int actualizarStock(int cant, int idp){
+        String sql = "UPDATE producto SET Stock = ? WHERE IdProducto = ?";
+        try {
+            con = cn.Conectar();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, cant);
+            ps.setInt(2, idp);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Error al actualizar stock" + e);
+        }
+        return r;
+    }
+    
     public Producto listarProductoID(int id){
         Producto p = new Producto();
         String sql = "SELECT * FROM producto WHERE IdProducto = ?";
